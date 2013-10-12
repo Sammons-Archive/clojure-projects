@@ -1,26 +1,3 @@
-;sim service
-(ns junkyard-client.simulated.services
-  (:require [io.pedestal.app.protocols :as p]
-            [io.pedestal.app.messages :as msg]
-            [io.pedestal.app.util.platform :as platform]))
+(ns junkyard-client.simulated.services)
 
-(def counters (atom {"abc" 0 "xyz" 0}))
-
-(defn increment-counter [key t input-queue]
-  (p/put-message input-queue {msg/type :swap
-                              msg/topic [:other-counter key]
-                              :value (get (swap! counters update-in [key] inc) key)})
-  (platform/create-timeout t #(increment-counter key t input-queue)))
-
-(defn receive-messages [input-queue]
-  (increment-counter "abc" 2000 input-queue)
-  (increment-counter "xyz" 5000 input-queue))
-
-(defn services-fn [message input-queue]
-  (.log js/console (str "Sending message to server: " message)))
-
-(defrecord MockServices [app]
-  p/Activity
-  (start [this]
-    (receive-messages (:input app)))
-  (stop [this]))
+;; Implement services to simulate talking to back-end services

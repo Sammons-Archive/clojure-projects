@@ -1,60 +1,99 @@
 (ns ^:shared junkyard-client.behavior
     (:require [clojure.string :as string]
               [io.pedestal.app.messages :as msg]
+              [io.pedestal.app.dataflow :as d]
               [io.pedestal.app :as app]))
+;; While creating new behavior, write tests to confirm that it is
+;; correct. For examples of various kinds of tests, see
+;; test/junkyard_client/behavior-test.clj.
 
-(defn inc-transform [old-value _]
-  ((fnil inc 0) old-value))
 
-(defn swap-transform [_ message]
-  (:value message))
+(defn set-transform [_ message]
+	(:value message))
+(defn inc-transform [old-state _]
+	((fnil inc 0) old-state))
+;(defn game-emitter [inputs]
+;  (if (-> (d/added-inputs inputs) (get [:game]))
+;    [[:transform-disable [:game] :new-game]]))
 
-(defn publish-counter [count]; effect because it returns message
-  [{msg/type :swap msg/topic [:other-counter] :value count}])
-
-(defn total-count [_ nums] (apply + nums))
-
-(defn maximum [old-value nums]
-  (apply max (or old-value 0) nums))
-
-(defn cumulative-average [debug key x]
-  (let [k (last key)
-        i (inc (or (::avg-count debug) 0))
-        avg (or (::avg-raw debug) 0)
-        new-avg (+ avg (/ (- x avg) i))]
-    (assoc debug
-      ::avg-count i
-      ::avg-raw new-avg
-      (keyword (str (name k) "-avg")) (int new-avg))))
-
-(defn average-count [_ {:keys [total nums]}]
-  (/ total (count nums)))
 
 (defn init-main [_]
-  [[:transform-enable [:main :my-counter] :inc [{msg/topic [:my-counter]}]]])
+  [[:transform-enable [:counter] :inc [{msg/topic [:counter]}]]])
 
-(defn merge-counters [_ {:keys [me others]}]
-  (assoc others "Me" me))
+
+;(def example-app
+;  {:version 2
+;   :transform [[:inc [:my-counter] inc-transform]]
+;   :emit [{:init init-main}
+;          [#{[:*]} (app/default-emitter [:main])]]})
 
 (def example-app
   {:version 2
-   :debug true
-   :transform [[:inc   [:my-counter]   inc-transform]
-               [:swap  [:**]           swap-transform]
-               [:debug [:pedestal :**] swap-transform]]
-   :derive #{[{[:my-counter] :me [:other-counter] :others} [:counters] merge-counters :map]
-             [#{[:counters :*]} [:total-count] total-count :vals]
-             [#{[:counters :*]} [:max-count] maximum :vals]
-             [{[:counters :*] :nums [:total-count] :total} [:average-count] average-count :map]
-             [#{[:pedestal :debug :dataflow-time]} [:pedestal :debug :dataflow-time-max] maximum :vals]
-             [#{[:pedestal :debug :dataflow-time]} [:pedestal :debug] cumulative-average :map-seq]}
-   :effect #{[#{[:my-counter]} publish-counter :single-val]}
-   :emit [{:init init-main}
-          [#{[:my-counter]
-             [:other-counter :*]
-             [:total-count]
-             [:max-count]
-             [:average-count]} (app/default-emitter [:main])]
-          [#{[:pedestal :debug :dataflow-time]
-             [:pedestal :debug :dataflow-time-max]
-             [:pedestal :debug :dataflow-time-avg]} (app/default-emitter [])]]})
+    :transform [
+			    [:set [:greeting] set-transform]
+			    [:inc [:counter] inc-transform]]
+    :emit [
+    	{:init init-main}
+    	[#{[:*] [:**]} (app/default-emitter [])]
+    	]})
+
+
+
+
+;; Once this behavior works, run the Data UI and record
+;; rendering data which can be used while working on a custom
+;; renderer. Rendering involves making a template:
+;;
+;; app/templates/junkyard-client.html
+;;
+;; slicing the template into pieces you can use:
+;;
+;; app/src/junkyard_client/html_templates.cljs
+;;
+;; and then writing the rendering code:
+;;
+;; app/src/junkyard_client/rendering.cljs
+
+(comment
+  ;; The examples below show the signature of each type of function
+  ;; that is used to build a behavior dataflow.
+
+  ;; transform
+
+  (defn example-transform [old-state message]
+    ;; returns new state
+    )
+
+  ;; derive
+
+  (defn example-derive [old-state inputs]
+    ;; returns new state
+    )
+
+  ;; emit
+
+  (defn example-emit [inputs]
+    ;; returns rendering deltas
+    )
+
+  ;; effect
+
+  (defn example-effect [inputs]
+    ;; returns a vector of messages which effect the outside world
+    )
+
+  ;; continue
+
+  (defn example-continue [inputs]
+    ;; returns a vector of messages which will be processed as part of
+    ;; the same dataflow transaction
+    )
+
+  ;; dataflow description reference
+
+  {:transform [[:op [:path] example-transform]]
+   :derive    #{[#{[:in]} [:path] example-derive]}
+   :effect    #{[#{[:in]} example-effect]}
+   :continue  #{[#{[:in]} example-continue]}
+   :emit      [[#{[:in]} example-emit]]}
+  )

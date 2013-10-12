@@ -1,5 +1,5 @@
-(defproject junkyard-client "0.0.1"
-  :description "checking into pedestal development"
+(defproject junkyard-client "0.0.1-SNAPSHOT"
+  :description "FIXME: write description"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-1835"]
                  [domina "1.0.1"]

@@ -9,39 +9,57 @@
         junkyard-client.behavior
         [io.pedestal.app.query :only [q]]))
 
-;; Test a transform function
-(def inc-message {msg/type :inc msg/topic [:my-counter]})
-(def swap-message {msg/type :set-val msg/topic [:val]})
 
-(deftest test-inc-transform
-  (is (= (inc-transform nil inc-message)   1))
-  (is (= (inc-transform 0   inc-message)   1))
-  (is (= (inc-transform 1   inc-message)   2))
-  (is (= (inc-transform 1   nil)           2))
-)
-;; get current values from application
-(defn- data-model [app] 
-    (-> app :state deref :data-model))
+
+;; transform tests
 ;(deftest test-set-value-transform
-;  (is (= (set-value-transform {} {msg/type :set-value msg/topic [:greeting] :value "x"})
-;         "x")))
-
+;  (is (= (set-transform {} {msg/type :set-value msg/topic [:new-val] :value "x"})
+;         :value "x")))
+(deftest test-set-transform
+  "tests whether the transform fns work"
+  (is (= (set-transform {} {msg/type :set msg/topic [:greeting] :value "x"})
+          "x"))
+  (is (= (set-transform {} {msg/type :set msg/topic [:greeting] :value nil})
+          nil))
+  (is (= (inc-transform 0 nil)
+          1))
+  (is (= (inc-transform 1 nil)
+          2))
+  (is (= (inc-transform nil nil)
+          1)))
 ;; Build an application, send a message to a transform and check the transform
 ;; state
 
-(deftest test-app-state
-  (let [app (app/build example-app)]
-      (is (test/run-sync! app [inc-message] :begin :default))
-      (is (=  (data-model app)
-          {:my-counter 1})))
-  (let [app (app/build example-app)]
-      (is (test/run-sync! app [inc-message inc-message inc-message] :begin :default))
-      (is (= (data-model app) {:my-counter 3}))))
-
+;(deftest test-app-state
+;  (let [app (app/build example-app)]
 ;    (app/begin app)
- ;   (is (vector?
- ;        (test/run-sync! app [{msg/type :set-value msg/topic [:greeting] :value "x"}])))
- ;   (is (= (-> app :state deref :data-model :greeting) "x"))))
+;    (is (vector?
+;         (test/run-sync! app [{msg/type :set-value msg/topic [:greeting] :value "x"}])))
+;    (is (= (-> app :state deref :data-model :greeting) "x"))))
+(defn- data-model [app]
+  (-> app :state deref :data-model))
+
+(defn- mult-to-vector [item n] 
+  (apply vector (concat (repeat n item))))
+
+(deftest test-app-state
+  "test the app at a particular state"
+  
+  (let [app (app/build example-app)
+        single-greet [{msg/type :set msg/topic [:greeting] :value "hello"}]
+        multi-greet (mult-to-vector {msg/type :set msg/topic [:greeting] :value "hello"} 50)
+        ]
+  (is (test/run-sync! app single-greet))
+  (is (= (data-model app) {:greeting "hello"}))
+  (is (test/run-sync! app multi-greet));must finish before timeout
+  (is (= (data-model app) {:greeting "hello"})))
+
+  (let [app (app/build example-app)
+        single-inc [{msg/type :inc msg/topic [:counter]}]
+        ] ;refresh app
+  (is (test/run-sync! app single-inc))
+  (is (= (data-model app) {:counter 1}))
+  ))
 
 ;; Use io.pedestal.app.query to query the current application model
 
@@ -52,7 +70,7 @@
 ;    (is (test/run-sync! app [{msg/topic [:greeting] msg/type :set-value :value "x"}]))
 ;    (is (= (q '[:find ?v
 ;                :where
-;                [?n :t/path [:greeting]]
+;               [?n :t/path [:greeting]]
 ;                [?n :t/value ?v]]
 ;              @app-model)
 ;           [["x"]]))))

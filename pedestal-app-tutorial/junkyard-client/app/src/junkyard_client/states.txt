@@ -1,0 +1,38 @@
+some states I snagged from the stdout when I got confused:
+
+app after being bound to app/build example app
+{:state
+#<Atom@269d5b42:
+	{:io.pedestal.app/emitter-deltas [],
+	 :io.pedestal.app/input
+		 {:io.pedestal.app.messages/type :set,
+		 :io.pedestal.app.messages/topic [:greeting],
+		 :value hello},
+	 :data-model {}
+	}>,
+:description
+	{:input-adapter
+	 #<app$ensure_input_adapter$fn__1549 io.pedestal.app$ensure_input_adapter$fn__1549@21881a7>,
+	 :version 2,
+	 :transform [],
+	 :emit [
+		[#{[:**] [:*]} #<app$eval1401$default_emitter__1404$fn__1405 io.pedestal.app$eval1401$default_emitter__1404$fn__1405@5852765b>]
+		[#{[:junk]} ()]]},
+			:dataflow {:effect #{},
+			:continue #{},
+			:derive (),
+			:input-adapter #<app$ensure_input_adapter$fn__1549 io.pedestal.app$ensure_input_adapter$fn__1549@21881a7>,
+			:version 2,
+			:transform [],
+			:emit [
+				{:arg-names nil, :in #{[:**] [:*]},
+				 :fn #<app$eval1401$default_emitter__1404$fn__1405 io.pedestal.app$eval1401$default_emitter__1404$fn__1405@5852765b>,
+				 :args nil}
+				{:arg-names nil,
+				 :in #{[:junk]},
+				 :fn (),
+				 :args nil}]},
+				:input #io.pedestal.app.queue.AppMessageQueue{
+					:state #<Atom@dd87daa: 
+{:queues {:high [], :low []}, :item {:io.pedestal.app.messages/type :set, :io.pedestal.app.messages/topic [:greeting], :value hello}, :name :input}>}, :output #io.pedestal.app.queue.AppMessageQueue{:state #<Atom@222b0
+0: {:queues {:high [], :low []}, :item nil, :name :output}>}, :app-model #io.pedestal.app.queue.AppMessageQueue{:state #<Atom@43350d11: {:queues {:high [], :low []}, :item nil, :name :app-model}>}}

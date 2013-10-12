@@ -1,65 +1,44 @@
-<_within file="application.html">
+<!--
+ The Pedestal application development tools provide a very simple
+ system for composing documents. This partial will be included
+ "within" the application.html file. The div with id "content" in that
+ file will be replaced with the div with id "content" in this file.
 
+ This feature is only part of the tool. It has nothing to do with the
+ ClojureScript application that you are building.
+-->
+<_within file="application.html">
+  
   <div id="content">
 
-    <div class="row-fluid" template="Junkyard" field="id:id">
+    <!--
+        In the markup below, a template named "hello" is
+        defined. This template has two fields: id and message.
 
-      <div class="span6">
+        In the file
 
-        <div>
-          <button class="btn btn-success" id="inc-button">Increment Counter</button>
-        </div>
+        app/src/junkyard_client/html_templates.clj
 
-        <div class="counter-row">
-          <span class="counter-label">Counter:</span>
-          <span class="counter" field="content:my-counter">40</span>
-        </div>
+        this template can be extracted by calling
 
-        <div id="other-counters">
-          <div template="other-counter" class="counter-row" field="id:id">
-            <span class="counter-label">Counter for <span field="content:counter-id">ahbnytnh</span>:</span>
-            <span class="counter" field="content:count">10</span>
-          </div>
-        </div>
+        (def template-fn (tfn (tnodes "junkyard-client.html" "hello")))
 
-      </div>
+        template-fn is a function which, when called with a map of
+        values, will return a string of HTML with filled-in values.
 
-      <div class="span2">
+        (template-fn {:id 42 :message "Hello"})
 
-        <div class="stat-label">
-          Max Count
-        </div>
-        <div class="stat" field="content:max-count">40</div>
+        The field attribute takes a comma delimited list of
 
-        <div class="stat-label">
-          Avg Count
-        </div>
-        <div class="stat" field="content:average-count">25</div>
+        html-element-attribute-name:map-key
 
-        <div class="stat-label">
-          Total Count
-        </div>
-        <div class="stat" field="content:total-count">50</div>
+        content is a special case which means that the content
+        (innerHTML) of the element will be set to this value.
+    -->
 
-      </div>
-      <div class="span3">
+    <div template="hello" field="id:id">
 
-        <div class="stat-label">
-          Max Dataflow Time
-        </div>
-        <div class="stat" field="content:dataflow-time-max">35</div>
-
-        <div class="stat-label">
-          Avg Dataflow Time
-        </div>
-        <div class="stat" field="content:dataflow-time-avg">9</div>
-
-        <div class="stat-label">
-          Current Dataflow time
-        </div>
-        <div class="stat" field="content:dataflow-time">6</div>
-
-      </div>
+      <div field="content:message" class="message">A Message</div>
 
     </div>
 
