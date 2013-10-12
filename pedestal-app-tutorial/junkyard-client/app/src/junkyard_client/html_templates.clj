@@ -1,4 +1,5 @@
 (ns junkyard-client.html-templates
+  (:require [io.pedestal.app.render.events :as events])
   (:use [io.pedestal.app.templates :only [tfn dtfn tnodes]]))
 
 (defmacro junkyard-client-templates
@@ -16,4 +17,9 @@
   ;; use ids to set values so you cannot dynamically set an id.
   {:junkyard-client-page (dtfn (tnodes "junkyard-client.html" "hello") #{:id})})
 
+(defn button-enable [r [_ path transform-name messages] d]
+  (events/send-on-click (dom/by-id "msg-button")
+                          d
+                          transform-name
+                          [{msg/type :set msg/topic [:set-value] :value "Pedestal Rocks!"}]))
 ;; Note: this file will not be reloaded automatically when it is changed.

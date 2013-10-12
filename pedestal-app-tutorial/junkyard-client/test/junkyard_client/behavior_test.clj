@@ -48,6 +48,7 @@
   (let [app (app/build example-app)
         single-greet [{msg/type :set msg/topic [:greeting] :value "hello"}]
         multi-greet (mult-to-vector {msg/type :set msg/topic [:greeting] :value "hello"} 50)
+        try-button [{msg/type :set msg/topic [:set-value] :value "yaaaay"}]
         ]
   (is (test/run-sync! app single-greet))
   (is (= (data-model app) {:greeting "hello"}))

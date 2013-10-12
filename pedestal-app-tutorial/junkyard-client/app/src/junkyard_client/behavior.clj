@@ -18,7 +18,8 @@
 
 
 (defn init-main [_]
-  [[:transform-enable [:counter] :inc [{msg/topic [:counter]}]]])
+  [[:transform-enable [:counter] :inc [{msg/topic [:counter]}]]
+   [:transform-enable [:try-button] :set [{msg/topic :set-value}]]])
 
 
 ;(def example-app
@@ -30,7 +31,7 @@
 (def example-app
   {:version 2
     :transform [
-			    [:set [:greeting] set-transform]
+			    [:set [:*] set-transform]
 			    [:inc [:counter] inc-transform]]
     :emit [
     	{:init init-main}
