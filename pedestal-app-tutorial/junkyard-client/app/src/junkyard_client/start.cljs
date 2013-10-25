@@ -53,4 +53,4 @@
   ;; for several aspects. A main namespace must have a no argument
   ;; main function. To tie into tooling, this function should return
   ;; the newly created app.
-  (create-app (rendering/render-config)))
+  (create-app (render/render-config)))

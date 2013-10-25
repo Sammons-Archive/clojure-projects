@@ -1,5 +1,4 @@
 (ns junkyard-client.html-templates
-  (:require [io.pedestal.app.render.events :as events])
   (:use [io.pedestal.app.templates :only [tfn dtfn tnodes]]))
 
 (defmacro junkyard-client-templates
@@ -15,11 +14,6 @@
   ;; The last argument to 'dtfn' is a set of fields that should be
   ;; treated as static fields (may only be set once). Dynamic templates
   ;; use ids to set values so you cannot dynamically set an id.
-  {:junkyard-client-page (dtfn (tnodes "junkyard-client.html" "hello") #{:id})})
+  {:junkyard-client-page (dtfn (tnodes "junkyard-client.html" "hello") #{:id :message})})
 
-(defn button-enable [r [_ path transform-name messages] d]
-  (events/send-on-click (dom/by-id "msg-button")
-                          d
-                          transform-name
-                          [{msg/type :set msg/topic [:set-value] :value "Pedestal Rocks!"}]))
 ;; Note: this file will not be reloaded automatically when it is changed.

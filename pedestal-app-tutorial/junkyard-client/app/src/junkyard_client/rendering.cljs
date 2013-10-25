@@ -4,6 +4,7 @@
             [io.pedestal.app.render.events :as events]
             [io.pedestal.app.messages :as msg]
             [io.pedestal.app.render.push.templates :as templates]
+            [io.pedestal.app.render.push.handlers :as h]
             [io.pedestal.app.render.push.handlers.automatic :as d])
   (:require-macros [junkyard-client.html-templates :as html-templates]))
 
@@ -55,11 +56,11 @@
 ;; which handle rendering for that specific change. This function is
 ;; referenced in config/config.edn and must be a function in order to
 ;; be used from the tool's "render" view.
-(defn button-enable [r [_ path transform-name messages] d]
+(defn button-enable [r [_ path transform-name messages] h]
   (events/send-on-click (dom/by-id "msg-button")
-                          d
+                          h
                           transform-name
-                          [{msg/type :set msg/topic [:set-value] :value "Pedestal Rocks!"}]))
+                          [{msg/type :set-value msg/topic [:greeting] :value "Pedestal Rocks!"}]))
 (defn render-config []
   [;; All :node-create deltas for the node at :greeting will
    ;; be rendered by the `render-page` function. The node name
@@ -69,7 +70,7 @@
    [:node-create  [:greeting] render-page]
    ;; All :node-destroy deltas for this path will be handled by the
    ;; library function `d/default-exit`.
-   [:node-destroy   [:greeting] d/default-exit]
+   [:node-destroy  [:greeting] h/default-destroy]
    ;; All :value deltas for this path will be handled by the
    ;; function `render-message`.
    [:value [:greeting] render-message]

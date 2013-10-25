@@ -3,8 +3,8 @@
             [io.pedestal.app.protocols :as p]
             [io.pedestal.app.tree :as tree]
             [io.pedestal.app.messages :as msg]
-            [io.pedestal.app.render :as render]
-            [io.pedestal.app.util.test :as test])
+            [io.pedestal.app.util.test :as test]
+            [junkyard-client.html-templates :as templates])
   (:use clojure.test
         junkyard-client.behavior
         [io.pedestal.app.query :only [q]]))
@@ -12,10 +12,7 @@
 
 
 ;; transform tests
-;(deftest test-set-value-transform
-;  (is (= (set-transform {} {msg/type :set-value msg/topic [:new-val] :value "x"})
-;         :value "x")))
-(deftest test-set-transform
+(deftest test-transform
   "tests whether the transform fns work"
   (is (= (set-transform {} {msg/type :set msg/topic [:greeting] :value "x"})
           "x"))
@@ -26,20 +23,20 @@
   (is (= (inc-transform 1 nil)
           2))
   (is (= (inc-transform nil nil)
-          1)))
-;; Build an application, send a message to a transform and check the transform
-;; state
+          1))
+  (is (= (set-transform {} {msg/type :set msg/topic [:try-button] :value "YAY"})
+          "YAY"))
+  (is (= (set-transform {} {msg/type :set msg/topic [:try-button] :value nil})
+        nil))
+  )
 
-;(deftest test-app-state
-;  (let [app (app/build example-app)]
-;    (app/begin app)
-;    (is (vector?
-;         (test/run-sync! app [{msg/type :set-value msg/topic [:greeting] :value "x"}])))
-;    (is (= (-> app :state deref :data-model :greeting) "x"))))
+;; App state tests
 (defn- data-model [app]
+  "deconstructs the app to access states"
   (-> app :state deref :data-model))
 
 (defn- mult-to-vector [item n] 
+  "creates a vector of n items"
   (apply vector (concat (repeat n item))))
 
 (deftest test-app-state
@@ -62,17 +59,31 @@
   (is (= (data-model app) {:counter 1}))
   ))
 
-;; Use io.pedestal.app.query to query the current application model
+;test the template macros
 
-;(deftest test-query-ui
-;  (let [app (app/build example-app)
-;        app-model (render/consume-app-model app (constantly nil))]
-;    (app/begin app)
-;    (is (test/run-sync! app [{msg/topic [:greeting] msg/type :set-value :value "x"}]))
-;    (is (= (q '[:find ?v
-;                :where
-;               [?n :t/path [:greeting]]
-;                [?n :t/value ?v]]
-;              @app-model)
-;           [["x"]]))))
+;test rendering
 
+(comment
+  (defn example-transform [old-state message]
+    ;; returns new state
+    )
+  (defn example-derive [old-state inputs]
+    ;; returns new state
+    )
+  (defn example-emit [inputs]
+    ;; returns rendering deltas
+    )
+  (defn example-effect [inputs]
+    ;; returns a vector of messages which effect the outside world
+    )
+  (defn example-continue [inputs]
+    ;; returns a vector of messages which will be processed as part of
+    ;; the same dataflow transaction
+    )
+  ;; dataflow description reference
+  {:transform [[:op [:path] example-transform]]
+   :derive    #{[#{[:in]} [:path] example-derive]}
+   :effect    #{[#{[:in]} example-effect]}
+   :continue  #{[#{[:in]} example-continue]}
+   :emit      [[#{[:in]} example-emit]]}
+  )
